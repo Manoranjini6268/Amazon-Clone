@@ -15,20 +15,20 @@ import { renderPaymentSummary } from "./paymentSummary.js";
 
 export function renderOrderSummary() {
   let cartSummaryHTML = "";
+  if (cart) {
+    cart.forEach((cartItem) => {
+      const productId = cartItem.productId;
 
-  cart.forEach((cartItem) => {
-    const productId = cartItem.productId;
+      const matchingProduct = getProduct(productId);
+      const deliveryOptionId = cartItem.deliveryOptionId;
 
-    const matchingProduct = getProduct(productId);
-    const deliveryOptionId = cartItem.deliveryOptionId;
+      const deliveryOption = getDeliveryOption(deliveryOptionId);
 
-    const deliveryOption = getDeliveryOption(deliveryOptionId);
+      const today = dayjs();
+      const deliveryDate = today.add(deliveryOption.deliveryDays, "days");
+      const dateString = deliveryDate.format("dddd ,MMMM D");
 
-    const today = dayjs();
-    const deliveryDate = today.add(deliveryOption.deliveryDays, "days");
-    const dateString = deliveryDate.format("dddd ,MMMM D");
-
-    cartSummaryHTML += `
+      cartSummaryHTML += `
         <div class="cart-item-container js-cart-item-container-${
           matchingProduct.id
         }">
@@ -69,25 +69,25 @@ export function renderOrderSummary() {
             </div>
           </div>
         </div>`;
-  });
+    });
 
-  function deliveryOptionsHTML(matchingProduct, cartItem) {
-    let html = "";
+    function deliveryOptionsHTML(matchingProduct, cartItem) {
+      let html = "";
 
-    deliveryOptions.forEach((deliveryOption) => {
-      const today = dayjs();
-      const deliveryDate = today.add(deliveryOption.deliveryDays, "days");
-      const dateString = deliveryDate.format("dddd ,MMMM D");
+      deliveryOptions.forEach((deliveryOption) => {
+        const today = dayjs();
+        const deliveryDate = today.add(deliveryOption.deliveryDays, "days");
+        const dateString = deliveryDate.format("dddd ,MMMM D");
 
-      const priceString =
-        deliveryOption.priceCents === 0
-          ? "FREE"
-          : `$${formatCurrency(deliveryOption.priceCents)} -`;
+        const priceString =
+          deliveryOption.priceCents === 0
+            ? "FREE"
+            : `$${formatCurrency(deliveryOption.priceCents)} -`;
 
-      const isChecked = deliveryOption.id === cartItem.deliveryOptionId;
-      html += `<div class="delivery-option js-delivery-option" data-product-id="${
-        matchingProduct.id
-      }" data-delivery-option-id="${deliveryOption.id}">
+        const isChecked = deliveryOption.id === cartItem.deliveryOptionId;
+        html += `<div class="delivery-option js-delivery-option" data-product-id="${
+          matchingProduct.id
+        }" data-delivery-option-id="${deliveryOption.id}">
                 <input
                   type="radio" ${isChecked ? "checked" : ""}
                   class="delivery-option-input"
@@ -98,8 +98,9 @@ export function renderOrderSummary() {
                   <div class="delivery-option-price">${priceString} - Shipping</div>
                 </div>
               </div>`;
-    });
-    return html;
+      });
+      return html;
+    }
   }
 
   document.querySelector(".js-order-summary").innerHTML = cartSummaryHTML;

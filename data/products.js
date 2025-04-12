@@ -1,4 +1,3 @@
-
 export function getProduct(productId) {
   let matchingProduct = "";
 
@@ -10,7 +9,24 @@ export function getProduct(productId) {
   return matchingProduct;
 }
 
-export const products = [
+export let products = [];
+
+export function loadproducts(fun) {
+  const xhr = new XMLHttpRequest();
+  xhr.addEventListener("load", () => {
+    products = JSON.parse(xhr.response);
+    console.log("load products");
+    fun();
+  });
+
+  xhr.addEventListener("error", () => {
+    console.log("Unexcepted error.Please Try Again");
+  });
+  xhr.open("GET", "https://supersimplebackend.dev/products");
+  xhr.send();
+}
+
+/*export const products = [
   {
     id: "e43638ce-6aa0-4b85-b27f-e1d07eb678c6",
     image: "images/products/athletic-cotton-socks-6-pairs.jpg",
@@ -482,3 +498,4 @@ export const products = [
     keywords: ["sweaters", "hoodies", "apparel", "mens"],
   },
 ];
+*/
