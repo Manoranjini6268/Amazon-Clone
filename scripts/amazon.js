@@ -1,4 +1,4 @@
-import { cart, addToCart } from "../data/cart.js";
+import { cart, addToCart, calculateCartQuantity } from "../data/cart.js";
 import { products, loadproducts } from "../data/products.js";
 
 loadproducts(renderProductGrid);
@@ -31,8 +31,8 @@ function renderProductGrid() {
                   product.priceCents / 100
                 ).toFixed(2)}</div>
 
-                <div class="product-quantity-container">
-                  <select>
+                <div class="product-quantity-container " >
+                  <select class="js-quantity-selector-${product.id}">
                     <option selected value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -48,7 +48,7 @@ function renderProductGrid() {
 
                 <div class="product-spacer"></div>
 
-                <div class="added-to-cart">
+                <div class="added-to-cart js-added-to-cart-${product.id}">
                   <img src="images/icons/checkmark.png" />
                   Added
                 </div>
@@ -62,20 +62,31 @@ function renderProductGrid() {
   document.querySelector(".js-products-grid").innerHTML = productsHTML;
 
   function updateCartQuantity() {
-    let cartQuantity = 0;
-
-    cart.forEach((cartItem) => {
-      cartQuantity += cartItem.quantity;
-    });
-
+    const cartQuantity = calculateCartQuantity();
     document.querySelector(".js-cart-quantity").innerHTML = cartQuantity;
   }
 
   document.querySelectorAll(".js-add-to-cart").forEach((button) => {
     button.addEventListener("click", () => {
       const productId = button.dataset.productId;
-      addToCart(productId);
+
+      const quantitySelector = document.querySelector(
+        `.js-quantity-selector-${productId}`
+      );
+      const quantity = Number(quantitySelector?.value || 1);
+
+      addToCart(quantity, productId);
       updateCartQuantity();
+
+      const addedMessage = document.querySelector(
+        `.js-added-to-cart-${productId}`
+      );
+
+      addedMessage.classList.add("visible");
+
+      setTimeout(() => {
+        addedMessage.classList.remove("visible");
+      }, 2000);
     });
   });
 }
